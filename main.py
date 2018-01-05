@@ -1,5 +1,5 @@
 import requests
-
+import sys
 
 def read_data(specific_url):
     """
@@ -23,9 +23,11 @@ def build_menu(url):
     menu_list = []
     page = 1
     json_data = read_data(url + str(page))
+    # check for pagination specifications
     pagination = json_data['pagination']
     per_page = pagination['per_page']
     total = pagination['total']
+    # parse through all menus until total number of nodes has been reached
     while (per_page * (page - 1) <= total):
         current_url = url + str(page)
         json_data = read_data(current_url)
@@ -84,18 +86,24 @@ def handle_cyclic_ref(specific_menu, root, menus):
         menus['valid_menus'].append(build_output(root_id, l))
 
 
-def validate(menu_list, menus):
+def validate(menu_list):
     """
     Validate whether or not there is a cyclical reference
     :param menu_list:
     :param menus:
     :return:
     """
+    validated_menus = {
+        'invalid_menus': [],
+        'valid_menus': []
+    }
+
     for node in menu_list:
         # only start search at root
         if 'parent_id' not in node:
-            handle_cyclic_ref(menu_list, node, menus)
+            handle_cyclic_ref(menu_list, node, validated_menus)
 
+    return validated_menus
 
 def build_output(root, list):
     """
@@ -111,18 +119,17 @@ def build_output(root, list):
 
 def main():
     """
-    Can run for both challenges, only "challenge_nb" needs to be changed
+    Can run for both challenges
+    Only "challenge_nb" needs to be changed through command line argument, default value is 1
     :return: prints output
     """
-    challenge_nb = '1'
+    try:
+        challenge_nb = sys.argv[1]
+    except IndexError:
+        challenge_nb = '1'
     url = 'https://backend-challenge-summer-2018.herokuapp.com/challenges.json?id=' + challenge_nb + '&page='
-    validated_menus = {
-        'invalid_menus': [],
-        'valid_menus': []
-    }
     menu = build_menu(url)
-    validate(menu, validated_menus)
-    print(validated_menus)
+    print(validate(menu))
 
 
 if __name__ == '__main__':
