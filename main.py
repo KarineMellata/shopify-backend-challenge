@@ -47,7 +47,7 @@ def get_node(id, list):
     return (item for item in list if item["id"] == id).next()
 
 
-def is_cyclic(specific_menu, root, menus):
+def handle_cyclic_ref(specific_menu, root, menus):
     """
     Conduct the search through one specific menu and add it to its respective list
     based on the result (invalid or valid)
@@ -94,7 +94,7 @@ def validate(menu_list, menus):
     for node in menu_list:
         # only start search at root
         if 'parent_id' not in node:
-            is_cyclic(menu_list, node, menus)
+            handle_cyclic_ref(menu_list, node, menus)
 
 
 def build_output(root, list):
@@ -114,7 +114,7 @@ def main():
     Can run for both challenges, only "challenge_nb" needs to be changed
     :return: prints output
     """
-    challenge_nb = '2'
+    challenge_nb = '1'
     url = 'https://backend-challenge-summer-2018.herokuapp.com/challenges.json?id=' + challenge_nb + '&page='
     validated_menus = {
         'invalid_menus': [],
