@@ -25,7 +25,7 @@ def build_menu(url):
     pagination = json_data['pagination']
     per_page = pagination['per_page']
     total = pagination['total']
-    while(per_page * page <= total):
+    while(per_page * (page-1) <= total):
         current_url = url + str(page)
         json_data = read_data(current_url)
         nodes = json_data['menus']
@@ -43,30 +43,6 @@ def get_node(id, list):
     :return: item corresponding to list
     """
     return (item for item in list if item["id"] == id).next()
-
-# DEPREACETED BRUTE-FORCE METHOD
-#
-# def has_child(node):
-#     return node['child_ids'] != []
-#
-# def separate_menus(menu_list):
-#     menus = {}
-#     counter = 0
-#     for node in menu_list:
-#         if 'parent_id' not in node:
-#             ids = []
-#             ids.append(node['id'])
-#             for children in node['child_ids']:
-#                 ids.append(children)
-#                 for child in get_node(children,menu_list)['child_ids']:
-#                     ids.append(child)
-#                     for child2 in get_node(child,menu_list)['child_ids']:
-#                         ids.append(child2)
-#                         for child3 in get_node(child2,menu_list)['child_ids']:
-#                             ids.append(child3)
-#             menus[counter] = ids
-#             counter+=1
-#     return menus
 
 def is_cyclic(menu_list,root,menus):
     """
@@ -130,16 +106,6 @@ def main():
     menu = build_menu(url)
     validate(menu,menus)
     print(menus)
-
-    #DEPRECEATED BRUTE-FORCE METHOD
-    # id_lists = separate_menus(menu)
-    # print(id_lists)
-    # for i in range(len(id_lists)):
-    #     if len(id_lists[i]) != len(set(id_lists[i])):
-    #         menus['invalid_menus'].append(build_output(id_lists[i]))
-    #     else:
-    #         menus['valid_menus'].append(build_output(id_lists[i]))
-    # print(menus)
 
 if __name__ == '__main__':
     main()
